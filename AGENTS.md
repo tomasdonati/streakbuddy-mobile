@@ -1,5 +1,14 @@
 # Repository Guidelines
 
+## Planning Workflow & Documentation
+- Planning lives in `InitialOverviewPlanning.md`, `ProjectBrainstorming.md`, and the split planning specs.
+- `InitialOverviewPlanning.md` defines vision and the rules for moving ideas from brainstorming to specs.
+- `ProjectBrainstorming.md` is the idea sandbox; keep alternatives and open questions here.
+- `ProjectPlanning.Shared.md` is the source of truth for platform-agnostic, implementation-ready specs.
+- `ProjectPlanning.Android.md` holds Android-specific implementation details only.
+- `ProjectPlanning.iOS.md` is reserved for future iOS-specific details.
+- When promoting ideas, update `ProjectPlanning.Shared.md` first, then add platform details as needed.
+
 ## Project Structure & Module Organization
 - `app/` is the only Gradle module; production code lives in `app/src/main/java/com/tomasdonati/streakfit`.
 - UI resources are in `app/src/main/res` and themes live under `app/src/main/java/com/tomasdonati/streakfit/ui/theme`.
