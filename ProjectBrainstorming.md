@@ -36,23 +36,31 @@ This document is the main hub for ideas about the app. It is intentionally explo
 
 High-level idea: users create and join "fitness groups" where each member has their own attendance counter and shared rules.
 
+Promoted to `ProjectPlanning.Shared.md` (group challenge MVP spec).
+
 - **Group structure**
   - A group has:
     - Name and optional description.
     - One or more **admins**.
-    - A main **challenge period** (e.g., a year) and **configurable checkpoints** (e.g., every 3 months).
+    - A main **challenge period** with start/end dates.
+    - **Checkpoints** defined at creation by a fixed interval (days/weeks/months).
     - A free-text **rules section** where admins can define:
       - Penalties (e.g., loser buys dinner).
       - Expected behavior (e.g., what counts as a "gym visit").
       - Any special conditions or agreement between group members.
   - Groups are **continuous**:
-    - Time frames (main period and checkpoints) can be edited by admins as needed.
+    - For MVP, time frames are not editable after creation.
 
 - **Membership**
   - Users can belong to **multiple groups** at the same time.
   - Each group membership tracks:
     - The user’s attendance count for that group.
     - Any relevant per-member metadata (e.g., join date, maybe role).
+  - **Membership rules (MVP)**:
+    - Roles: admin/member only, with a single admin per group.
+    - Members can leave at any time; their past attendance remains.
+    - Admins cannot leave the group in MVP (role transfer later).
+    - Admins can remove members; removed members can be re-invited.
 
 - **Invites & joining**
   - MVP approach:
@@ -62,15 +70,29 @@ High-level idea: users create and join "fitness groups" where each member has th
         - Install / open the app.
         - Authentication (if needed).
         - Join confirmation screen.
+    - **Invite semantics (MVP)**:
+      - Single-use invite links.
+      - No expiry.
+      - Payload includes groupId, inviterId, and optional inviter display name.
+      - Security uses a random token (do not expose plain groupId alone).
+      - Invite generation is admin-only.
+      - No revoke/rotate in MVP.
+      - Admins can remove members to handle accidental joins.
+      - If invite is opened by an existing member, skip confirmation and open Group Overview.
   - Future possibilities:
     - Group codes for manual entry.
     - QR codes that represent the same invite links.
 
 - **Attendance logging**
   - For each "gym visit", a user can log an **attendance entry** that includes:
-    - **Date/time** (auto-filled to "now" with option to adjust).
+    - **Date/time** (auto-filled to "now" with option to adjust within 1 day).
     - **Group** (if the user belongs to multiple groups; default group can be preselected).
-    - **Optional location** (e.g., gym location via device location or manual entry).
+    - **Optional location** removed from MVP.
+  - Rules:
+    - One attendance per user per group per day.
+    - If an entry already exists for the day, allow overwrite with a confirmation prompt.
+    - Editing is not supported in MVP (delete + re-log instead).
+    - Deletion is allowed for any log in MVP.
   - **Evidence photos**:
     - **Not part of MVP** (requires cloud storage).
     - Future behavior when implemented:
@@ -87,18 +109,28 @@ High-level idea: users create and join "fitness groups" where each member has th
     - Overview of members and their attendance counts.
     - Indication of:
       - Current challenge period and checkpoint.
-      - Time remaining until the end of the current checkpoint / main period.
-    - Possibly simple leaderboards:
-      - Sorted by total attendance count within the period.
+      - Time remaining until the end of the current checkpoint or full period (toggle).
+    - Leaderboard:
+      - Default sort: current checkpoint count.
+      - Optional toggle to sort by full challenge total.
+      - Toggle also switches member counts to checkpoint vs full challenge.
+      - Member list is fully shown and scrollable if needed.
   - For each user:
     - Personal view of:
       - Their attendance across all groups.
       - History of logged visits.
+  - Empty state:
+    - If no attendance yet: show "No gym attendance yet" and a CTA like "Register attendance".
 
 - **Notifications (MVP-level)**
-  - Basic **push notifications**:
-    - When someone in a group logs a new attendance.
-    - Optionally, reminders near the end of a checkpoint or period.
+  - Basic **push notifications** (opt-in per type):
+    - Attendance logged (notify all group members except the logger).
+    - New member joined group.
+  - Content (MVP):
+    - "X logged a gym visit in Group Y".
+  - Multiple notifications per day are allowed in MVP.
+  - Future:
+    - Custom reminders near checkpoint or challenge end.
   - More complex gamification (streaks, badges, etc.) is a later enhancement.
 
 #### User Flows – Group Challenge
@@ -117,6 +149,9 @@ This subsection outlines the main user flows related to the group challenge feat
 ### Fitness Planner
 
 High-level idea: a simple, flexible planner for routines and exercises, that can grow over time.
+
+- **MVP scope**
+  - Planner is out of MVP; show a simple "Work in progress" placeholder screen.
 
 - **Routines**
   - Users can create named routines, e.g.:
@@ -178,6 +213,8 @@ This section captures features that are reusable across multiple parts of the ap
 #### Walkthrough / Education System [target: 0.1.0]
 
 High-level idea: a reusable, full-screen, multi-page walkthrough to explain how the app and its main features work.
+
+Promoted to `ProjectPlanning.Shared.md` (walkthrough system spec for 0.1.0).
 
 - **Purpose**
   - Help new users quickly understand:
@@ -360,6 +397,31 @@ Early uncertainties to resolve before promoting these flows to `ProjectPlanning.
 
 This section captures high-level architectural ideas. These are not final and may change as we refine the design.
 
+### Architecture Decisions (Draft for Promotion)
+
+- **Backend choice**
+  - Use **Cloud Firestore** for 0.1.0.
+- **Modularization**
+  - Adopt Now in Android style modularization from the start (avoid later refactor).
+- **Firestore structure**
+  - Use top-level collections with subcollections where needed.
+  - Example: `groups/{groupId}` with subcollections for attendance entries and group-specific data.
+- **Sync cadence**
+  - Sync on app start and via manual pull-to-refresh.
+- **Write handling**
+  - MVP: failed writes can be dropped after user feedback (retry queue can be added later).
+- **Conflict policy**
+  - User-owned data: local edits win and overwrite server on next sync.
+  - Shared data: backend wins; local edits are rejected/overwritten.
+- **IDs and timestamps**
+  - IDs: client-generated UUIDs for offline creation.
+  - Timestamps: server timestamps are canonical; use local provisional timestamps for UI until synced.
+- **Access control**
+  - Only group members can read group data.
+  - Only admins can edit group settings and rules.
+- **Paging**
+  - Attendance history is paged (do not load full history by default).
+
 ### Offline-first with Backend Sync
 
 - **Local storage (Room)**
@@ -396,6 +458,8 @@ This section captures high-level architectural ideas. These are not final and ma
     - Write operations:
       - Update local DB first and enqueue sync to backend.
       - Handle eventual consistency and conflict resolution (details to be refined later).
+
+Promoted to `ProjectPlanning.Shared.md` (architecture and data sync spec for 0.1.0).
 
 ### Layers & Modules (inspired by `nowinandroid`)
 
@@ -536,30 +600,44 @@ Possible sections on the main Home screen:
 
 The Home screen should function as a **dashboard** that connects the group challenge and planner features.
 
+**Home layout (MVP)**
+- Home is a scrollable list of sections.
+- Each section can define:
+  - Title.
+  - Optional subtitle (tappable, e.g., "View all").
+  - Tap behavior (section-level CTA or button).
+
+**Groups section (MVP)**
+- Shows only the first group (full list lives in Groups tab).
+- Content:
+  - Group name.
+  - User’s attendance count (current checkpoint).
+  - User’s position in leaderboard (current checkpoint).
+  - Time remaining in current checkpoint.
+- Tap behavior:
+  - Tapping the section opens Group Overview.
+
 ### Navigation
 
 - **Single-activity, Jetpack Compose**.
 - **Bottom navigation bar**:
-  - Designed to support multiple destinations (up to around 5).
-  - MVP may primarily expose **Home**, but the structure should anticipate:
-    - A dedicated Groups destination.
-    - A dedicated Planner destination.
-  - A **center action button** may be reserved for future "special" actions (e.g., quick log, scanner, or similar).
+  - MVP destinations: **Home**, **Groups**, **Planner (WIP)**, **Settings**.
+  - Planner tab opens a "Coming soon / Work in progress" screen.
+  - Home is the start destination after cold start.
+  - When app resumes from background, restore the last visited screen.
+  - If user is not authenticated, show only the auth flow (no tabs).
+  - Primary CTA: "Log attendance" opens a non-camera log flow in MVP.
+  - Future: primary CTA can open camera viewfinder when photo evidence is added.
 
 ### Top Bar
 
 - **Left side**:
-  - Tappable **profile area**:
-    - User avatar.
-    - Greeting (e.g., "Hello, \<username>").
-  - Tapping opens profile / account / settings UI:
-    - Could be a bottom sheet or separate screen (to be decided later).
+  - Tappable **profile area** (avatar + greeting).
+  - Opens profile UI (details TBD).
 
 - **Right side actions**:
-  - **Create** button (plus icon):
-    - Context-aware actions (e.g., "log attendance", "create routine").
-  - **Help / Contact** button:
-    - Opens a simple help / feedback entry point (placeholder in MVP).
+  - **Notifications** button (placeholder for future use).
+  - **Feedback** button (placeholder for future use).
 
 ### Visual Style
 
@@ -762,6 +840,3 @@ This section explores how we want to name and structure app versions over time.
       - Fixes.
       - Any breaking changes or required user actions (if applicable).
   - Within this brainstorming document, we can append simple annotations like `[target: 0.1.0]`, `[target: 0.2.0]`, etc. to bullets once we have a tentative idea of which version should deliver a given feature or change.
-
-
-
