@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.tomasdonati.streakfit"
+    namespace = "com.tomasdonati.streakbuddy"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.tomasdonati.streakfit"
+        applicationId = "com.tomasdonati.streakbuddy"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
