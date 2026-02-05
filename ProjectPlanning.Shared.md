@@ -18,17 +18,99 @@ Use platform-specific planning files for implementation details:
 
 ## Core Product Scope (MVP)
 
-> **Status:** Placeholder
+### MVP Feature Set
 
-Define the MVP feature set and non-negotiable constraints shared across platforms.
+- Group Fitness Challenge / Attendance Tracker (groups, invites, attendance, overview, basic notifications).
+- Authentication/onboarding (email + password, invite-based joins, display name).
+- Home/Groups/Settings navigation (Planner is WIP placeholder).
+- Settings: notification toggle, account info, change display name, change password, legal placeholders.
+
+### Out of MVP (Deferred)
+
+- Fitness Planner functionality (WIP placeholder only).
+- Walkthrough system (fullscreen step-by-step modals + coachmarks).
+- Photo evidence/camera logging.
+- Streaks/badges/gamification.
+- Analytics and advanced insights.
+- Social sharing/community features.
+
+### Non-Negotiable Constraints
+
+- Backend is authoritative; any action that commits data requires connectivity.
+- Membership changes while offline apply immediately on next connection.
+- Backend-backed multi-device groups (Cloud Firestore).
+- Minimal gamification in MVP.
+
+### Permissions (MVP)
+
+- Internet permission only.
+- Camera/Photos and Location are deferred until related features are implemented.
 
 ---
 
 ## Navigation & App Flow (Shared)
 
-> **Status:** Placeholder
+### Navigation Structure (MVP)
 
-Define the main user flows and navigation intent (e.g., Home, Groups, Planner) without tying to platform UI frameworks.
+- Single-activity architecture.
+- Bottom navigation tabs:
+  - Home.
+  - Groups.
+  - Planner (WIP).
+  - Settings.
+- Planner tab opens a “Coming soon / Work in progress” screen.
+- Start destination after cold start: Home.
+- When resuming from background: restore last visited screen.
+- If user is not authenticated: show auth flow only (no tabs).
+- Primary CTA: “Log attendance” opens non-camera log flow in MVP.
+- Future: primary CTA can open camera viewfinder when photo evidence is added.
+
+### Top Bar (MVP)
+
+- Left: profile area (avatar + greeting) opens profile UI.
+- Right: notifications button and feedback button (both placeholders in MVP).
+
+### Home Screen (MVP)
+
+- Home is a scrollable list of sections.
+- Each section can define:
+  - Title.
+  - Optional subtitle (tappable, e.g., “View all”).
+  - Tap behavior (section-level CTA or button).
+- Groups section:
+  - Shows only the first group (full list is in Groups tab).
+  - Displays group name, user’s attendance count (current checkpoint),
+    user’s leaderboard position (current checkpoint), and time remaining
+    in current checkpoint.
+  - Tapping the section opens Group Overview.
+
+### Groups Tab (MVP)
+
+- Shows full list of groups the user belongs to.
+- Each list item includes:
+  - Group name.
+  - User’s attendance count (current checkpoint).
+  - Time remaining in current checkpoint.
+  - User’s position in current checkpoint leaderboard.
+- Tapping a group opens Group Overview.
+- Empty state: CTA to create or join a group.
+
+### Settings Tab (MVP)
+
+- CTA list items:
+  - Notification settings.
+  - About the app.
+  - Feedback.
+  - Sign out.
+- Notification settings:
+  - Global toggle enabling/disabling all notifications.
+- Account details:
+  - Show email and display name.
+  - Allow change display name.
+  - Allow change password.
+- Legal placeholders:
+  - Privacy policy.
+  - Terms of service.
 
 ---
 
@@ -42,7 +124,7 @@ Define canonical entities and fields (e.g., User, Group, Membership, AttendanceE
 
 ## Feature Specifications (Shared)
 
-### Group Challenge
+### Group Challenge (MVP)
 
 #### Scope (MVP)
 
@@ -106,7 +188,7 @@ Define canonical entities and fields (e.g., User, Group, Membership, AttendanceE
 - New member joined group.
 - Multiple notifications per day are allowed.
 
-### Fitness Planner
+### Fitness Planner (Deferred)
 
 > **Status:** Placeholder
 
@@ -151,12 +233,7 @@ Implementation-ready, platform-agnostic behavior for routines and exercises.
 6. On join success:
    - Create membership record in backend.
    - Persist membership locally for offline access.
-7. Show the walkthrough/education modal:
-   - Multi-page, manual advance (swipe or Next).
-   - Progress indicator.
-   - Final action: Done / Get started.
-   - On completion, record a local "seen walkthrough" flag.
-8. Navigate to Group Overview for the newly joined group.
+7. Navigate to Group Overview for the newly joined group.
 
 #### Open Invite Link (Already Logged In)
 
@@ -203,7 +280,7 @@ Implementation-ready, platform-agnostic behavior for routines and exercises.
 
 ## Walkthrough / Education System (Shared)
 
-### Scope (0.1.0)
+### Scope (Deferred)
 
 - A reusable, full-screen, multi-page walkthrough UI.
 - Shown only once per user per walkthrough type.
@@ -239,13 +316,18 @@ Implementation-ready, platform-agnostic behavior for routines and exercises.
   - Optional illustration/icon.
 - Each walkthrough is limited to 2-5 pages.
 
+### Planned Additions
+
+- Add coachmarks that can highlight UI elements by view tag.
+
 ---
 
 ## Architecture & Data Sync (Shared)
 
 ### Core Principles
 
-- Offline-first: local database is the primary read source for app UI.
+- Backend-authoritative: server state is the source of truth for committed data.
+- Cached data supports basic offline viewing.
 - Backend-backed: Cloud Firestore is the system of record for shared data.
 - Modularization follows the Now in Android pattern from the start.
 
@@ -265,8 +347,7 @@ Implementation-ready, platform-agnostic behavior for routines and exercises.
 - IDs are client-generated UUIDs; server timestamps are canonical.
 - Attendance history is paged (do not load full history by default).
 - User-owned data:
-  - Local edits win and overwrite server on next sync.
-  - Example: routines, exercises, personal attendance entries.
+  - Commit actions require connectivity; do not allow offline commits in MVP.
 - Shared data:
   - Backend wins on conflicts; local edits are rejected/overwritten.
   - Example: group rules, group settings, membership roles.

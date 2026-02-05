@@ -1,10 +1,15 @@
 ## Project Brainstorming
 
-This document is the main hub for ideas about the app. It is intentionally exploratory and may contain conflicting or evolving concepts. Once ideas are refined and considered "ready for implementation", they will be promoted and captured in a more formal way in `ProjectPlanning.md`.
+This document is the main hub for ideas about the app. It is intentionally exploratory and may contain conflicting or evolving concepts. Once ideas are refined and considered "ready for implementation", they will be promoted and captured in a more formal way in `ProjectPlanning.Shared.md`.
 
 ---
 
 ## Product & Users
+
+### Vision Update (Future Direction)
+
+- Evolve the core vision into a broader habit-promoting application, not limited to fitness.
+- Fitness challenges (gym attendance) remain a primary use case, but the system should scale to other habits.
 
 - **Target users**
   - Groups of young people (roughly **16–40** years old) who:
@@ -32,7 +37,7 @@ This document is the main hub for ideas about the app. It is intentionally explo
 
 ## Features
 
-### Group Fitness Challenge / Attendance Tracker
+### Group Fitness Challenge / Attendance Tracker (MVP)
 
 High-level idea: users create and join "fitness groups" where each member has their own attendance counter and shared rules.
 
@@ -41,7 +46,7 @@ Promoted to `ProjectPlanning.Shared.md` (group challenge MVP spec).
 - **Group structure**
   - A group has:
     - Name and optional description.
-    - One or more **admins**.
+    - A single **admin** (MVP).
     - A main **challenge period** with start/end dates.
     - **Checkpoints** defined at creation by a fixed interval (days/weeks/months).
     - A free-text **rules section** where admins can define:
@@ -146,7 +151,7 @@ This subsection outlines the main user flows related to the group challenge feat
 - **Edit Group Settings (Admin)**
 - **Leave Group**
 
-### Fitness Planner
+### Fitness Planner (Deferred)
 
 High-level idea: a simple, flexible planner for routines and exercises, that can grow over time.
 
@@ -210,11 +215,18 @@ Brainstormed ideas that are **not** part of the MVP but may be considered later:
 
 This section captures features that are reusable across multiple parts of the app.
 
-#### Walkthrough / Education System [target: 0.1.0]
+#### Walkthrough / Education System (Deferred)
 
 High-level idea: a reusable, full-screen, multi-page walkthrough to explain how the app and its main features work.
 
 Promoted to `ProjectPlanning.Shared.md` (walkthrough system spec for 0.1.0).
+
+**MVP update**
+- Walkthrough system is deferred; not part of MVP.
+- Keep implementation flexibility for future onboarding.
+- Planned features:
+  - Fullscreen step-by-step/card modals.
+  - Coachmarks that can highlight UI items by view tag.
 
 - **Purpose**
   - Help new users quickly understand:
@@ -222,11 +234,11 @@ Promoted to `ProjectPlanning.Shared.md` (walkthrough system spec for 0.1.0).
     - How the main features (e.g., Group Challenge, Routine Tracker) work.
   - Provide light, visual education instead of dense text blocks.
 
-- **Behavior (MVP)**
+- **Behavior (planned)**
   - Appears as a **full-screen modal**:
     - Consists of multiple pages/screens.
     - User advances manually (e.g., swipe or tap "Next").
-    - No automatic per-page timers or story-like auto-advance in the MVP.
+    - No automatic per-page timers or story-like auto-advance.
   - Each page can include:
     - A title.
     - A short description.
@@ -253,7 +265,7 @@ Promoted to `ProjectPlanning.Shared.md` (walkthrough system spec for 0.1.0).
 
 ---
 
-### Onboarding & Authentication
+### Onboarding & Authentication (MVP)
 
 This section covers how users first experience the app, create accounts, and sign in, with the requirement that all group members must be authenticated (no guest mode in the MVP).
 
@@ -288,7 +300,7 @@ High-level list of onboarding/auth flows. Some are still high-level; others (lik
        - Inviter name or identifier (if encoded/available).
      - App shows a lightweight intro screen:
        - Example content:
-         - Title: "Join your friends in \<Group Name>"
+        - Title: "Join your friends in <Group Name>"
          - Subtitle: 1–2 lines describing what the app does (e.g., "Track gym visits with your friends and stay motivated together.")
        - Primary action: "Continue" (moves to sign up / log in).
        - Secondary action: "Not now" (optional; could dismiss and go to a generic onboarding path or app exit).
@@ -326,7 +338,7 @@ High-level list of onboarding/auth flows. Some are still high-level; others (lik
        - Rules text (scrollable).
        - Approximate member count (if available).
      - Screen content:
-       - Title: "Join \<Group Name>?"
+      - Title: "Join <Group Name>?"
        - Body: high-level description + rules preview.
        - Actions:
          - Primary: "Join group".
@@ -335,6 +347,7 @@ High-level list of onboarding/auth flows. Some are still high-level; others (lik
        - App creates a membership record associating the new user with the group.
        - Handles any backend errors (e.g., invite expired, group full, etc.) with clear messages.
   7. **Walkthrough / education modal (cross-app feature)**
+     - Out of MVP; keep for future onboarding.
      - Immediately after joining the group for the first time:
        - App shows the **Walkthrough / Education System** modal described in the Cross-App Features section.
        - Content example:
@@ -385,7 +398,7 @@ High-level list of onboarding/auth flows. Some are still high-level; others (lik
 
 #### Open Questions – Onboarding & Auth
 
-Early uncertainties to resolve before promoting these flows to `ProjectPlanning.md`:
+Early uncertainties to resolve before promoting these flows to `ProjectPlanning.Shared.md`:
 
 - Google sign-in is tentatively targeted for `0.2.0`; exact UX, error handling, and rollout details are still open.
 - What minimum profile information should be required at signup (e.g., display name, avatar) versus optional or deferred.
@@ -397,12 +410,19 @@ Early uncertainties to resolve before promoting these flows to `ProjectPlanning.
 
 This section captures high-level architectural ideas. These are not final and may change as we refine the design.
 
-### Architecture Decisions (Draft for Promotion)
+### Architecture Decisions (MVP - Draft for Promotion)
 
 - **Backend choice**
   - Use **Cloud Firestore** for 0.1.0.
 - **Modularization**
   - Adopt Now in Android style modularization from the start (avoid later refactor).
+- **Offline policy (MVP)**
+  - Backend is authoritative.
+  - Any action that commits data to backend requires connectivity.
+  - If membership changes occur while a user is offline (e.g., removed by admin),
+    the change is applied immediately on next connection.
+- **Cache (MVP)**
+  - Keep a local cache for offline viewing of last known data.
 - **Firestore structure**
   - Use top-level collections with subcollections where needed.
   - Example: `groups/{groupId}` with subcollections for attendance entries and group-specific data.
@@ -411,10 +431,10 @@ This section captures high-level architectural ideas. These are not final and ma
 - **Write handling**
   - MVP: failed writes can be dropped after user feedback (retry queue can be added later).
 - **Conflict policy**
-  - User-owned data: local edits win and overwrite server on next sync.
+  - User-owned data requires connectivity to commit.
   - Shared data: backend wins; local edits are rejected/overwritten.
 - **IDs and timestamps**
-  - IDs: client-generated UUIDs for offline creation.
+  - IDs: client-generated UUIDs for creation.
   - Timestamps: server timestamps are canonical; use local provisional timestamps for UI until synced.
 - **Access control**
   - Only group members can read group data.
@@ -422,7 +442,7 @@ This section captures high-level architectural ideas. These are not final and ma
 - **Paging**
   - Attendance history is paged (do not load full history by default).
 
-### Offline-first with Backend Sync
+### Backend-Authoritative with Cache (MVP)
 
 - **Local storage (Room)**
   - Use Room as the main local persistence mechanism for:
@@ -430,7 +450,7 @@ This section captures high-level architectural ideas. These are not final and ma
     - Groups and memberships.
     - Attendance entries.
     - Routines and exercises.
-  - The local database should be treated as the source of truth for most app logic.
+  - The local database is a cache for offline viewing and fast reads.
 
 - **Backend**
   - Use a backend service for:
@@ -455,13 +475,11 @@ This section captures high-level architectural ideas. These are not final and ma
     - Attendance entries.
   - Syncing strategy:
     - Fetch server state into local Room tables.
-    - Write operations:
-      - Update local DB first and enqueue sync to backend.
-      - Handle eventual consistency and conflict resolution (details to be refined later).
+    - Write operations require connectivity and update backend first, then refresh local cache.
 
 Promoted to `ProjectPlanning.Shared.md` (architecture and data sync spec for 0.1.0).
 
-### Layers & Modules (inspired by `nowinandroid`)
+### Layers & Modules (Future)
 
 Draft module boundaries and layers:
 
@@ -492,11 +510,11 @@ Draft module boundaries and layers:
   - Hosts the root navigation graph.
   - Sets up DI and app-wide configuration.
 
-These module names and responsibilities are tentative and will be refined before being promoted to `ProjectPlanning.md`.
+These module names and responsibilities are tentative and will be refined before being promoted to `ProjectPlanning.Shared.md`.
 
 ---
 
-## Dependencies
+## Dependencies (Future)
 
 ### Internal (Android / Google / Jetpack)
 
@@ -539,13 +557,13 @@ Ideas for third-party dependencies:
 
 ---
 
-## Non-Functional Requirements
+## Non-Functional Requirements (MVP)
 
 Brainstormed non-functional considerations:
 
 - **Offline behavior**
-  - Core flows (view routines, log attendance) must work without network.
-  - Changes should sync automatically when connectivity returns.
+  - Basic viewing works offline via cached data.
+  - Commit actions require connectivity.
 
 - **Performance**
   - Fast app startup on mid-range devices.
@@ -576,7 +594,7 @@ Brainstormed non-functional considerations:
 
 ---
 
-## Design & UX Notes
+## Design & UX Notes (MVP)
 
 These are early, high-level design and UX ideas that can be refined over time.
 
@@ -617,7 +635,7 @@ The Home screen should function as a **dashboard** that connects the group chall
 - Tap behavior:
   - Tapping the section opens Group Overview.
 
-### Navigation
+### Navigation (MVP)
 
 - **Single-activity, Jetpack Compose**.
 - **Bottom navigation bar**:
@@ -629,7 +647,7 @@ The Home screen should function as a **dashboard** that connects the group chall
   - Primary CTA: "Log attendance" opens a non-camera log flow in MVP.
   - Future: primary CTA can open camera viewfinder when photo evidence is added.
 
-### Top Bar
+### Top Bar (MVP)
 
 - **Left side**:
   - Tappable **profile area** (avatar + greeting).
@@ -638,6 +656,37 @@ The Home screen should function as a **dashboard** that connects the group chall
 - **Right side actions**:
   - **Notifications** button (placeholder for future use).
   - **Feedback** button (placeholder for future use).
+
+Promoted to `ProjectPlanning.Shared.md` (navigation/app flow MVP spec).
+
+### Groups Tab (MVP)
+
+- Shows the full list of groups the user belongs to.
+- Each list item includes:
+  - Group name.
+  - User’s attendance count for current checkpoint.
+  - Time remaining in current checkpoint.
+  - User’s position in current checkpoint leaderboard.
+- Tapping a group opens Group Overview.
+- If no groups:
+  - Show empty state with CTA to create or join a group.
+
+### Settings Tab (MVP)
+
+- List of CTA rows:
+  - Notification settings.
+  - About the app.
+  - Feedback.
+  - Sign out.
+- Notification settings:
+  - Global toggle that enables/disables all notifications.
+- Account details:
+  - Show email and display name.
+  - Allow change display name.
+  - Allow change password.
+- Legal placeholders:
+  - Privacy policy.
+  - Terms of service.
 
 ### Visual Style
 
@@ -651,7 +700,7 @@ The Home screen should function as a **dashboard** that connects the group chall
 
 ## Open Questions / Risks
 
-This section tracks uncertainties and potential risks that we should revisit before promoting ideas to `ProjectPlanning.md`.
+This section tracks uncertainties and potential risks that we should revisit before promoting ideas to `ProjectPlanning.Shared.md`.
 
 - **Backend technology choice**
   - Firestore vs Realtime Database:
@@ -661,8 +710,8 @@ This section tracks uncertainties and potential risks that we should revisit bef
 
 - **Sync complexity**
   - Handling:
-    - Conflicting updates (e.g., duplicated or out-of-order attendance logs).
-    - Partial offline periods where multiple users log entries before syncing.
+    - Conflicting updates on shared data.
+    - Cached data refresh timing and stale views.
 
 - **Abuse and moderation**
   - Potential for:
@@ -680,7 +729,7 @@ This section tracks uncertainties and potential risks that we should revisit bef
     - Avoiding overwhelming the Home screen and bottom nav.
   - Deciding when (or if) to introduce more advanced navigation patterns (e.g., deep links for many screens).
 
-These questions should be revisited and answered before we move toward locking down implementation details in `ProjectPlanning.md`.
+These questions should be revisited and answered before we move toward locking down implementation details in `ProjectPlanning.Shared.md`.
 
 ---
 
@@ -810,7 +859,6 @@ This section explores how we want to name and structure app versions over time.
   - `0.1.0` – MVP:
     - Email + password authentication for onboarding and login.
     - Core group challenge functionality (create/join groups, basic attendance logging and viewing).
-    - Basic planner (create routines and exercises, no advanced integrations).
     - Minimal notifications (e.g., simple group update notifications).
   - `0.2.0` – First feature update:
     - Add **Google sign-in** on top of email/password.
