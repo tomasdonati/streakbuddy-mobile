@@ -37,6 +37,8 @@ This document is the main hub for ideas about the app. It is intentionally explo
 
 ## Features
 
+Data model has been promoted to `ProjectPlanning.Shared.md` (MVP entities defined).
+
 ### Group Fitness Challenge / Attendance Tracker (MVP)
 
 High-level idea: users create and join "fitness groups" where each member has their own attendance counter and shared rules.

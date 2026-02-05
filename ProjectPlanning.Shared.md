@@ -116,9 +116,65 @@ Use platform-specific planning files for implementation details:
 
 ## Data Model (Shared)
 
-> **Status:** Placeholder
+### User (MVP)
 
-Define canonical entities and fields (e.g., User, Group, Membership, AttendanceEntry, Routine, Exercise) that both platforms must implement.
+- `id` (UUID, app user id)
+- `email` (string, required)
+- `display_name` (string, required)
+- `avatar_url` (string, optional)
+- `created_at` (server timestamp)
+- `updated_at` (server timestamp)
+- `last_login_at` (server timestamp)
+
+**Status:** MVP data model defined.
+
+### ChallengeGroup (MVP)
+
+- `id` (UUID)
+- `name` (string, required)
+- `description` (string, optional)
+- `habit_type` (enum, required; MVP values: fitness)
+- `rules_text` (string, optional)
+- `start_date` (date, required)
+- `end_date` (date, required)
+- `checkpoint_interval_unit` (enum: days | weeks | months)
+- `checkpoint_interval_value` (int)
+- `admin_user_id` (UUID, required)
+- `created_at` (server timestamp)
+- `updated_at` (server timestamp)
+
+### Membership (MVP)
+
+- `id` (UUID)
+- `group_id` (UUID, required)
+- `user_id` (UUID, required)
+- `role` (enum: admin | member)
+- `joined_at` (server timestamp)
+
+### AttendanceEntry (MVP)
+
+- `id` (UUID)
+- `group_id` (UUID, required)
+- `user_id` (UUID, required)
+- `logged_date` (date, required; used for display + uniqueness)
+- `note` (string, optional)
+- `created_at` (server timestamp)
+- `updated_at` (server timestamp)
+
+### Invite (MVP)
+
+- `id` (UUID)
+- `token` (string, required; used in invite link)
+- `group_id` (UUID, required)
+- `sender_user_id` (UUID, required)
+- `sender_display_name` (string, optional)
+- `created_at` (server timestamp)
+- Deleted after use (single-use).
+
+### UserPreferences (MVP)
+
+- `user_id` (UUID, required; document id)
+- `notifications_enabled` (boolean, required)
 
 ---
 
