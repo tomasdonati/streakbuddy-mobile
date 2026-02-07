@@ -1,4 +1,4 @@
-# Repository Guidelines
+﻿# Repository Guidelines
 
 # ExecPlans
 When writing complex features or significant refactors, use an ExecPlan (as described in .agent/PLANS.md) from design to implementation.
@@ -45,3 +45,6 @@ Use the Gradle wrapper from the repo root (`gradlew.bat` on Windows):
 ## Configuration Notes
 - `local.properties` is for local SDK paths; avoid committing machine-specific values.
 - Keep API keys or secrets out of the repo; use environment-specific config instead.
+
+## Skills
+- Use the `android-architecture-designing` skill whenever creating new files, directories, or modules. It defines the NIA-inspired architecture, SOLID layering, MVVM/UDF conventions, and coroutine best practices for this project.
