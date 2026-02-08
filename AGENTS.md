@@ -4,17 +4,22 @@
 When writing complex features or significant refactors, use an ExecPlan (as described in .agent/PLANS.md) from design to implementation.
 
 ## Planning Workflow & Documentation
-- Planning lives in `InitialOverviewPlanning.md`, `ProjectBrainstorming.md`, and the split planning specs.
-- `InitialOverviewPlanning.md` defines vision and the rules for moving ideas from brainstorming to specs.
-- `ProjectBrainstorming.md` is the idea sandbox; keep alternatives and open questions here.
-- `ProjectPlanning.Shared.md` is the source of truth for platform-agnostic, implementation-ready specs.
-- `ProjectPlanning.Android.md` holds Android-specific implementation details only.
-- `ProjectPlanning.iOS.md` is reserved for future iOS-specific details.
-- When promoting ideas, update `ProjectPlanning.Shared.md` first, then add platform details as needed.
+- Planning lives in `.planning/`.
+- `.planning/ANDROID_ARCHITECTURE.md` is the source of truth for project architecture, module boundaries, layering, DI strategy, and implementation phases.
+- `.planning/FEATURES.md` lists the main product features and their scope status (MVP vs deferred).
+- `.planning/USER_NAVIGATION.md` defines platform-agnostic user navigation flows for both Android and iOS.
+- When asked to help with planning or continue planning work, the LLM must read all files in `.planning/` before proposing or applying planning changes.
+
+## Session Memory
+- `SESSION.md` is the living memory for the current session.
+- At the start of every new session, the LLM must read `SESSION.md` first.
+- During the session, the LLM must update `SESSION.md` after every change and every decision.
+- Keep session notes short and factual.
+- At the end of the session, the LLM must replace detailed notes with a brief summary of completed work and pending items, then remove the rest.
 
 ## Project Structure & Module Organization
-- `app/` is the only Gradle module; production code lives in `app/src/main/java/com/tomasdonati/streakfit`.
-- UI resources are in `app/src/main/res` and themes live under `app/src/main/java/com/tomasdonati/streakfit/ui/theme`.
+- `app/` is the only Gradle module; production code lives in `app/src/main/java/com/tomasdonati/streakbuddy`.
+- UI resources are in `app/src/main/res` and themes live under `app/src/main/java/com/tomasdonati/streakbuddy/ui/theme`.
 - Unit tests are in `app/src/test`, and instrumented tests are in `app/src/androidTest`.
 
 ## Build, Test, and Development Commands
@@ -47,4 +52,9 @@ Use the Gradle wrapper from the repo root (`gradlew.bat` on Windows):
 - Keep API keys or secrets out of the repo; use environment-specific config instead.
 
 ## Skills
-- Use the `android-architecture-designing` skill whenever creating new files, directories, or modules. It defines the NIA-inspired architecture, SOLID layering, MVVM/UDF conventions, and coroutine best practices for this project.
+- Use the local `android-architecture-designing` skill whenever creating new files, directories, or modules.
+- Skill path: `.agent/skills/android-architecture-designing/SKILL.md`
+- This skill defines the NIA-inspired architecture, SOLID layering, MVVM/UDF conventions, and coroutine best practices for this project.
+- Use the local `android-implementation` skill whenever implementing new Android/Kotlin code or updating existing Android/Kotlin code.
+- Skill path: `.agent/skills/android-implementation/SKILL.md`
+- This skill defines implementation conventions such as null-safety rules, composable boundaries, coroutine patterns, and error-handling style.

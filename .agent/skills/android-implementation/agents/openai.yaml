@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Android Implementation"
+  short_description: "Write Android code with strict project conventions"
+  default_prompt: "Use $android-implementation to implement this code change following project conventions."

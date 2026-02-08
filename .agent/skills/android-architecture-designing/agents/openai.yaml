@@ -1,0 +1,4 @@
+interface:
+  display_name: "Android Architecture Designing"
+  short_description: "Scaffold Android apps with NIA, MVVM, SOLID"
+  default_prompt: "Use $android-architecture-designing to scaffold an Android project architecture based on requirements."
